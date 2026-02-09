@@ -1,26 +1,31 @@
-
 import { db } from "@/lib/db";
 import { NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 
 export async function GET() {
-    // TODO: Add authentication check here (NextAuth/Clerk)
-    // For now, returning data for all teams (admin view style) or hardcoded team
+    const session = await getServerSession(authOptions);
+
+    if (!session || !session.user || !session.user.teamId) {
+        return new NextResponse("Unauthorized", { status: 401 });
+    }
 
     try {
         const servers = await db.server.findMany({
+            where: { teamId: session.user.teamId },
             orderBy: { lastSeen: 'desc' },
             take: 20
         });
 
         const alerts = await db.alert.findMany({
-            where: { isResolved: false },
+            where: { server: { teamId: session.user.teamId }, isResolved: false },
             orderBy: { createdAt: 'desc' },
             take: 10,
-            include: { server: true } // Include server details in alert
+            include: { server: true }
         });
 
         // Transform alerts to match UI expectation
-        const formattedAlerts = alerts.map(a => ({
+        const formattedAlerts = alerts.map((a: any) => ({
             id: a.id,
             risk: a.type === 'RISK_HIGH' || a.type === 'CPU_HIGH' ? 'HIGH' : 'MEDIUM',
             summary: a.message,

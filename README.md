@@ -9,8 +9,14 @@ The multi-tenant SaaS dashboard for SentinelAI, designed to be deployed on Verce
 For the dashboard to function, you need to set the following environment variables on Vercel:
 
 ```
-DATABASE_URL="postgres://..." # Your Postgres database URL (e.g., from Vercel Storage or Supabase)
-NEXTAUTH_SECRET="your-secret" # (Optional for now)
+DATABASE_URL="postgres://..." # Your Postgres database URL
+NEXTAUTH_SECRET="your-secret-key" # Generate with `openssl rand -base64 32`
+NEXTAUTH_URL="http://localhost:3000" # or your Vercel URL
+# Optional: OAuth Providers
+GITHUB_ID=""
+GITHUB_SECRET=""
+GOOGLE_CLIENT_ID=""
+GOOGLE_CLIENT_SECRET=""
 ```
 
 ### Setup Steps

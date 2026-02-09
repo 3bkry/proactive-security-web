@@ -9,6 +9,7 @@ export const metadata: Metadata = {
   description: "Security Agent Control Panel",
 };
 
+import { AuthProvider } from "@/components/AuthProvider";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
 import { WebSocketProvider } from "@/context/WebSocketContext";
 
@@ -20,11 +21,13 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        <WebSocketProvider>
-          <DashboardLayout>
-            {children}
-          </DashboardLayout>
-        </WebSocketProvider>
+        <AuthProvider>
+          <WebSocketProvider>
+            <DashboardLayout>
+              {children}
+            </DashboardLayout>
+          </WebSocketProvider>
+        </AuthProvider>
       </body>
     </html>
   );
