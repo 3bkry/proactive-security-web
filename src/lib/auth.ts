@@ -46,13 +46,15 @@ export const authOptions: NextAuthOptions = {
     ],
     callbacks: {
         async session({ session, token }) {
-            if (token.sub && session.user) {
-                session.user.id = token.sub;
+            if (token && session.user) {
+                if (token.sub) {
+                    session.user.id = token.sub;
 
-                // Fetch fresh user data to get teamId
-                const user = await db.user.findUnique({ where: { id: token.sub } });
-                if (user) {
-                    session.user.teamId = user.teamId;
+                    // Fetch fresh user data to get teamId
+                    const user = await db.user.findUnique({ where: { id: token.sub } });
+                    if (user) {
+                        session.user.teamId = user.teamId;
+                    }
                 }
             }
             return session;

@@ -59,7 +59,13 @@ export default function Overview() {
 
   const onlineCount = servers.filter(s => s.status === 'ONLINE').length;
   const totalServers = servers.length;
-  const connectCommand = `export SENTINEL_CLOUD_URL=${window.location.origin} && export SENTINEL_AGENT_KEY=${teamKey} && sentinelctl start`;
+
+  const [origin, setOrigin] = useState('');
+  useEffect(() => {
+    setOrigin(window.location.origin);
+  }, []);
+
+  const connectCommand = `export SENTINEL_CLOUD_URL=${origin} && export SENTINEL_AGENT_KEY=${teamKey} && sentinelctl start`;
 
   return (
     <div className="p-8">
