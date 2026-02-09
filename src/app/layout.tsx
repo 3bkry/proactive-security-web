@@ -23,9 +23,7 @@ export default function RootLayout({
       <body className={inter.className}>
         <AuthProvider>
           <WebSocketProvider>
-            <DashboardLayout>
-              {children}
-            </DashboardLayout>
+            {children}
           </WebSocketProvider>
         </AuthProvider>
       </body>

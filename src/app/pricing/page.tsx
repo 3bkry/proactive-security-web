@@ -15,7 +15,7 @@ export default function PricingPage() {
                         </Link>
                         <div className="flex items-center space-x-4">
                             <Link href="/login" className="text-zinc-400 hover:text-white transition-colors text-sm font-medium">Log in</Link>
-                            <Link href="/login" className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
+                            <Link href="/register" className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors">
                                 Get Started
                             </Link>
                         </div>

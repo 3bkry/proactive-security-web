@@ -10,6 +10,12 @@ export default withAuth({
 export const config = {
     matcher: [
         "/dashboard/:path*",
+        "/servers/:path*",
+        "/logs/:path*",
+        "/ai/:path*",
+        "/incidents/:path*",
+        "/terminal/:path*",
+        "/settings/:path*",
         "/api/dashboard/:path*",
         "/api/teams/:path*"
     ]
