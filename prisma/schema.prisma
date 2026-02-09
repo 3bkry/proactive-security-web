@@ -1,0 +1,81 @@
+
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Team {
+  id          String   @id @default(uuid())
+  name        String
+  apiKey      String   @unique // Used by agents to associate with this team
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  users       User[]
+  servers     Server[]
+}
+
+model User {
+  id          String   @id @default(uuid())
+  email       String   @unique
+  name        String?
+  role        String   @default("MEMBER") // OWNER, MEMBER
+  teamId      String
+  team        Team     @relation(fields: [teamId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Server {
+  id          String   @id @default(uuid())
+  teamId      String
+  team        Team     @relation(fields: [teamId], references: [id])
+  name        String
+  hostname    String?
+  ip          String?
+  platform    String?
+  status      String   @default("ONLINE") // ONLINE, OFFLINE
+  version     String?
+  lastSeen    DateTime @default(now())
+  stats       String?  // JSON string of CPU, Mem, Disk
+  
+  alerts      Alert[]
+  commands    Command[]
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([teamId, hostname]) // Prevent duplicate servers per team
+}
+
+model Alert {
+  id          String   @id @default(uuid())
+  serverId    String
+  server      Server   @relation(fields: [serverId], references: [id])
+  type        String   // RISK_HIGH, RISK_MEDIUM, CPU_HIGH, etc.
+  message     String
+  details     String?  // JSON details
+  isResolved  Boolean  @default(false)
+  
+  createdAt   DateTime @default(now())
+}
+
+model Command {
+  id          String   @id @default(uuid())
+  serverId    String
+  server      Server   @relation(fields: [serverId], references: [id])
+  type        String   // BAN_IP, UNBAN_IP, RESTART_AGENT
+  payload     String?  // JSON arguments
+  status      String   @default("PENDING") // PENDING, SENT, COMPLETED, FAILED
+  result      String?  // Output from agent
+  
+  createdAt   DateTime @default(now())
+  completedAt DateTime?
+}
