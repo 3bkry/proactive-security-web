@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 
 import { AuthProvider } from "@/components/AuthProvider";
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
-import { WebSocketProvider } from "@/context/WebSocketContext";
+
 
 export default function RootLayout({
   children,
