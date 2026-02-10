@@ -105,7 +105,9 @@ export async function POST(req: NextRequest) {
             aiConfig: {
                 provider: team.aiProvider,
                 geminiKey: team.geminiApiKey,
-                openaiKey: team.openaiApiKey
+                openaiKey: team.openaiApiKey,
+                zhipuKey: team.zhipuApiKey,
+                model: team.aiModel
             },
             files: dbFiles.map((f: any) => ({
                 path: f.path,

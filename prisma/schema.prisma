@@ -77,9 +77,11 @@ model Team {
   
   aiTokenUsage  Int      @default(0)
   aiTokenLimit  Int      @default(100000)
-  aiProvider    String   @default("gemini") // "gemini" or "openai"
+  aiProvider    String   @default("gemini") // "gemini" or "openai" or "zhipu"
+  aiModel       String?  // Custom model name (e.g. "glm4.7")
   geminiApiKey  String?
   openaiApiKey  String?
+  zhipuApiKey   String?
   
   // Notification settings
   telegramToken  String?

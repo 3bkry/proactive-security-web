@@ -12,8 +12,10 @@ export default function SettingsPage() {
 
     const [config, setConfig] = useState({
         aiProvider: 'gemini',
+        aiModel: '', // Custom model name
         geminiApiKey: '',
         openaiApiKey: '',
+        zhipuApiKey: '',
         telegramToken: '',
         telegramChatId: '',
     });
@@ -24,8 +26,10 @@ export default function SettingsPage() {
                 const response = await axios.get('/api/ai/config');
                 setConfig({
                     aiProvider: response.data.aiProvider || 'gemini',
+                    aiModel: response.data.aiModel || '',
                     geminiApiKey: response.data.geminiApiKey || '',
                     openaiApiKey: response.data.openaiApiKey || '',
+                    zhipuApiKey: response.data.zhipuApiKey || '',
                     telegramToken: response.data.telegramToken || '',
                     telegramChatId: response.data.telegramChatId || '',
                 });
@@ -79,9 +83,23 @@ export default function SettingsPage() {
                                 onChange={(e) => setConfig({ ...config, aiProvider: e.target.value })}
                                 className="w-full bg-zinc-950 border border-zinc-800 rounded px-3 py-2 text-white focus:outline-none focus:border-indigo-500"
                             >
-                                <option value="gemini">Google Gemini (3 Flash Preview)</option>
-                                <option value="openai">OpenAI (GPT-4o)</option>
+                                <option value="gemini">Google Gemini</option>
+                                <option value="openai">OpenAI (GPT-4)</option>
+                                <option value="zhipu">Zhipu AI (GLM-4)</option>
                             </select>
+                        </div>
+
+                        {/* Custom Model Name */}
+                        <div>
+                            <label className="block text-sm font-medium text-zinc-400 mb-1">Model Name (Optional)</label>
+                            <input
+                                type="text"
+                                placeholder={config.aiProvider === 'gemini' ? 'gemini-1.5-flash' : config.aiProvider === 'openai' ? 'gpt-4o' : 'glm-4-plus'}
+                                value={config.aiModel}
+                                onChange={(e) => setConfig({ ...config, aiModel: e.target.value })}
+                                className="w-full bg-zinc-950 border border-zinc-800 rounded px-3 py-2 text-white focus:outline-none focus:border-indigo-500"
+                            />
+                            <p className="text-xs text-zinc-500 mt-1">Leave empty to use default. Example: <code>glm4.7</code>, <code>gemini-pro</code></p>
                         </div>
 
                         {config.aiProvider === 'gemini' && (
@@ -109,6 +127,20 @@ export default function SettingsPage() {
                                     className="w-full bg-zinc-950 border border-zinc-800 rounded px-3 py-2 text-white focus:outline-none focus:border-indigo-500"
                                 />
                                 <p className="text-xs text-zinc-500 mt-2">Get your key from <a href="https://platform.openai.com/api-keys" target="_blank" className="text-indigo-400 hover:underline">OpenAI Dashboard</a></p>
+                            </div>
+                        )}
+
+                        {config.aiProvider === 'zhipu' && (
+                            <div>
+                                <label className="block text-sm font-medium text-zinc-400 mb-1">Zhipu API Key</label>
+                                <input
+                                    type="password"
+                                    placeholder="Enter your Zhipu GLM API Key"
+                                    value={config.zhipuApiKey}
+                                    onChange={(e) => setConfig({ ...config, zhipuApiKey: e.target.value })}
+                                    className="w-full bg-zinc-950 border border-zinc-800 rounded px-3 py-2 text-white focus:outline-none focus:border-indigo-500"
+                                />
+                                <p className="text-xs text-zinc-500 mt-2">Get your key from <a href="https://open.bigmodel.cn/usercenter/apikeys" target="_blank" className="text-indigo-400 hover:underline">BigModel Open Platform</a></p>
                             </div>
                         )}
                     </div>

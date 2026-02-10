@@ -20,8 +20,10 @@ export async function GET() {
 
         return NextResponse.json({
             aiProvider: team.aiProvider,
+            aiModel: team.aiModel,
             geminiApiKey: team.geminiApiKey ? "****" + team.geminiApiKey.slice(-4) : null,
             openaiApiKey: team.openaiApiKey ? "****" + team.openaiApiKey.slice(-4) : null,
+            zhipuApiKey: team.zhipuApiKey ? "****" + team.zhipuApiKey.slice(-4) : null,
             telegramToken: team.telegramToken ? "****" + team.telegramToken.slice(-4) : null,
             telegramChatId: team.telegramChatId ? "****" + team.telegramChatId.slice(-4) : null,
         });
@@ -36,7 +38,7 @@ export async function POST(req: NextRequest) {
 
     try {
         const body = await req.json();
-        const { aiProvider, geminiApiKey, openaiApiKey, telegramToken, telegramChatId } = body;
+        const { aiProvider, aiModel, geminiApiKey, openaiApiKey, zhipuApiKey, telegramToken, telegramChatId } = body;
 
         const team = await db.team.findUnique({
             where: { id: session.user.teamId }
@@ -48,8 +50,10 @@ export async function POST(req: NextRequest) {
             where: { id: team.id },
             data: {
                 aiProvider: aiProvider || team.aiProvider,
+                aiModel: aiModel || team.aiModel,
                 geminiApiKey: geminiApiKey || team.geminiApiKey,
                 openaiApiKey: openaiApiKey || team.openaiApiKey,
+                zhipuApiKey: zhipuApiKey || team.zhipuApiKey,
                 telegramToken: telegramToken || team.telegramToken,
                 telegramChatId: telegramChatId || team.telegramChatId,
             }
