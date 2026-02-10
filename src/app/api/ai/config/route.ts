@@ -20,6 +20,7 @@ export async function GET() {
 
         return NextResponse.json({
             aiProvider: team.aiProvider,
+            apiKey: team.apiKey,
             aiModel: team.aiModel,
             geminiApiKey: team.geminiApiKey ? "****" + team.geminiApiKey.slice(-4) : null,
             openaiApiKey: team.openaiApiKey ? "****" + team.openaiApiKey.slice(-4) : null,

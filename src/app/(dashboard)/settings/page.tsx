@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { Settings as SettingsIcon, Save, RefreshCw, CheckCircle, AlertCircle } from 'lucide-react';
+import { Settings as SettingsIcon, Save, RefreshCw, CheckCircle, AlertCircle, Key, Copy } from 'lucide-react';
 import axios from 'axios';
 
 export default function SettingsPage() {
@@ -11,6 +11,7 @@ export default function SettingsPage() {
     const [status, setStatus] = useState<{ type: 'success' | 'error', message: string } | null>(null);
 
     const [config, setConfig] = useState({
+        apiKey: '',
         aiProvider: 'gemini',
         aiModel: '', // Custom model name
         geminiApiKey: '',
@@ -25,6 +26,7 @@ export default function SettingsPage() {
             try {
                 const response = await axios.get('/api/ai/config');
                 setConfig({
+                    apiKey: response.data.apiKey || '',
                     aiProvider: response.data.aiProvider || 'gemini',
                     aiModel: response.data.aiModel || '',
                     geminiApiKey: response.data.geminiApiKey || '',
@@ -69,6 +71,39 @@ export default function SettingsPage() {
             <p className="text-zinc-400 mb-8">Configure agent behavior and notification preferences.</p>
 
             <div className="space-y-6 max-w-2xl">
+                {/* Agent Connection */}
+                <div className="bg-zinc-900 border border-zinc-800 rounded-lg p-6 shadow-xl">
+                    <h2 className="text-xl font-semibold text-white mb-4 flex items-center">
+                        <Key size={20} className="mr-2 text-emerald-400" /> Sentinel Agent Key
+                    </h2>
+                    <p className="text-sm text-zinc-400 mb-6">Use this key to connect your local agents to the cloud dashboard.</p>
+
+                    <div>
+                        <label className="block text-sm font-medium text-zinc-400 mb-1">Agent Key</label>
+                        <div className="flex">
+                            <input
+                                type="text"
+                                readOnly
+                                value={config.apiKey}
+                                className="w-full bg-zinc-950 border border-zinc-800 rounded-l px-3 py-2 text-white font-mono focus:outline-none focus:border-indigo-500"
+                            />
+                            <button
+                                onClick={() => {
+                                    navigator.clipboard.writeText(config.apiKey);
+                                    setStatus({ type: 'success', message: 'Agent Key copied to clipboard' });
+                                }}
+                                className="bg-zinc-800 border border-l-0 border-zinc-800 rounded-r px-4 hover:bg-zinc-700 transition"
+                                title="Copy to clipboard"
+                            >
+                                <Copy size={16} className="text-zinc-400" />
+                            </button>
+                        </div>
+                        <p className="text-xs text-zinc-500 mt-2">
+                            Run: <code>SENTINEL_AGENT_KEY={config.apiKey} sentinelctl start</code>
+                        </p>
+                    </div>
+                </div>
+
                 {/* AI Configuration */}
                 <div className="bg-zinc-900 border border-zinc-800 rounded-lg p-6 shadow-xl">
                     <h2 className="text-xl font-semibold text-white mb-4 flex items-center">
