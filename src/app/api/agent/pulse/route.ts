@@ -31,6 +31,7 @@ export async function POST(req: NextRequest) {
                 status: "ONLINE",
                 lastSeen: new Date(),
                 stats: JSON.stringify(stats),
+                wsPort: body.wsPort || undefined
             }
         });
 

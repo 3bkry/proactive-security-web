@@ -98,6 +98,7 @@ model Server {
   platform    String?
   status      String   @default("ONLINE") // ONLINE, OFFLINE
   version     String?
+  wsPort      Int?     // Dynamic WebSocket port for live terminal
   lastSeen    DateTime @default(now())
   stats       String?  // JSON string of CPU, Mem, Disk
   

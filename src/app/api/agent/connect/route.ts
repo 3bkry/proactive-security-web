@@ -9,7 +9,7 @@ export async function POST(req: NextRequest) {
 
     try {
         const body = await req.json();
-        const { hostname, platform, version, ip } = body;
+        const { hostname, platform, version, ip, wsPort } = body;
 
         // Validate required fields
         if (!hostname) {
@@ -28,6 +28,7 @@ export async function POST(req: NextRequest) {
                 ip: ip || null,
                 platform: platform || null,
                 version: version || null,
+                wsPort: wsPort || null,
                 lastSeen: new Date(),
                 status: "ONLINE"
             },
@@ -38,6 +39,7 @@ export async function POST(req: NextRequest) {
                 ip: ip || null,
                 platform: platform || null,
                 version: version || null,
+                wsPort: wsPort || null,
                 status: "ONLINE"
             },
         });
