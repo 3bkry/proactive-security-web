@@ -22,9 +22,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={inter.className}>
         <AuthProvider>
-          <WebSocketProvider>
-            {children}
-          </WebSocketProvider>
+          {children}
         </AuthProvider>
       </body>
     </html>

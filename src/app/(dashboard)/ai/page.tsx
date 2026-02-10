@@ -1,7 +1,6 @@
 
 "use client";
 
-import { useWebSocket } from "@/context/WebSocketContext";
 import { useState, useEffect, useRef } from "react";
 import {
     BrainCircuit, Coins, BarChart3, Zap,
@@ -25,7 +24,6 @@ const StatCard = ({ title, value, sub, icon: Icon, color }: any) => (
 );
 
 export default function AI() {
-    const { socket, sendMessage } = useWebSocket();
     const [stats, setStats] = useState({
         totalTokens: 0,
         totalCost: 0,
@@ -37,36 +35,19 @@ export default function AI() {
     const [isEditingPrompt, setIsEditingPrompt] = useState(false);
     const [expandedHistory, setExpandedHistory] = useState<number | null>(null);
 
+    // TODO: Implement REST API for AI stats/history
     useEffect(() => {
-        if (!socket) return;
+        // Placeholder for initial load
+        setStats({
+            totalTokens: 1250,
+            totalCost: 0.0004,
+            requestCount: 5,
+            model: "Gemini 1.5 Pro"
+        });
+    }, []);
 
-        sendMessage({ type: "get_ai_history" });
-        sendMessage({ type: "get_ai_prompt" });
-
-        const handleMessage = (event: MessageEvent) => {
-            try {
-                const msg = JSON.parse(event.data);
-                if (msg.type === "ai_stats") {
-                    setStats(msg.data);
-                } else if (msg.type === "ai_history") {
-                    setHistory(msg.data);
-                } else if (msg.type === "ai_prompt") {
-                    setPrompt(msg.data);
-                } else if (msg.type === "alert" || msg.type === "history_update") {
-                    // Refresh history on new alert or background update
-                    sendMessage({ type: "get_ai_history" });
-                }
-            } catch (e) {
-                console.error("Error parsing AI message:", e);
-            }
-        };
-
-        socket.addEventListener("message", handleMessage);
-        return () => socket.removeEventListener("message", handleMessage);
-    }, [socket]);
-
-    const handleSavePrompt = () => {
-        sendMessage({ type: "update_ai_prompt", data: prompt });
+    const handleSavePrompt = async () => {
+        // await axios.post('/api/ai/prompt', { prompt });
         setIsEditingPrompt(false);
     };
 

@@ -1,11 +1,26 @@
 
 "use client";
 
-import { useWebSocket } from "@/context/WebSocketContext";
+import { useState, useEffect } from "react";
+import axios from "axios";
 import { ShieldAlert, AlertTriangle, Info, Clock, ExternalLink } from 'lucide-react';
 
 export default function Incidents() {
-    const { alerts } = useWebSocket();
+    const [alerts, setAlerts] = useState<any[]>([]);
+
+    useEffect(() => {
+        const fetchAlerts = async () => {
+            try {
+                const res = await axios.get('/api/dashboard/overview');
+                setAlerts(res.data.alerts || []);
+            } catch (e) {
+                console.error(e);
+            }
+        };
+        fetchAlerts();
+        const interval = setInterval(fetchAlerts, 5000);
+        return () => clearInterval(interval);
+    }, []);
 
     const getRiskColor = (risk: string) => {
         switch (risk) {
