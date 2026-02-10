@@ -142,21 +142,30 @@ const ServerHealthRow = ({ server, onConfigClick }: { server: any, onConfigClick
   };
 
   const stats = getStats();
+  const isOnline = server.status === 'ONLINE';
 
   const getStatusColor = (val: number, threshold: number) => {
+    if (!isOnline) return "text-zinc-700";
     if (val > threshold + 10) return "text-rose-500";
     if (val > threshold) return "text-amber-500";
     return "text-indigo-400";
   };
 
   return (
-    <div className="group p-4 border border-zinc-800 rounded-xl bg-zinc-950/40 hover:bg-zinc-900/60 transition-all flex items-center justify-between">
+    <div className={`group p-4 border rounded-xl transition-all flex items-center justify-between ${isOnline ? 'bg-zinc-950/40 border-zinc-800 hover:bg-zinc-900/60' : 'bg-red-950/10 border-red-900/30 grayscale-[0.5]'}`}>
       <div className="flex items-center gap-4">
-        <div className={`p-2.5 rounded-xl border ${server.status === 'ONLINE' ? 'bg-indigo-500/10 border-indigo-500/20 text-indigo-400' : 'bg-red-500/10 border-red-500/20 text-red-400'}`}>
+        <div className={`p-2.5 rounded-xl border ${isOnline ? 'bg-indigo-500/10 border-indigo-500/20 text-indigo-400' : 'bg-red-500/10 border-red-500/20 text-red-500'}`}>
           <Server size={18} />
         </div>
         <div>
-          <h4 className="font-bold text-white text-sm group-hover:text-indigo-400 transition-colors">{server.hostname}</h4>
+          <div className="flex items-center gap-2">
+            <h4 className={`font-bold text-sm transition-colors ${isOnline ? 'text-white group-hover:text-indigo-400' : 'text-zinc-500'}`}>{server.hostname}</h4>
+            {!isOnline && (
+              <span className="px-2 py-0.5 rounded-full bg-red-500/20 text-red-500 text-[10px] font-black uppercase tracking-tighter border border-red-500/30 animate-pulse">
+                Disconnected
+              </span>
+            )}
+          </div>
           <div className="flex items-center gap-2 text-[10px] text-zinc-500 font-bold uppercase tracking-widest">
             <span className="flex items-center gap-1"><Terminal size={10} /> v{server.version}</span>
             <span className="w-1 h-1 rounded-full bg-zinc-700"></span>
@@ -166,26 +175,26 @@ const ServerHealthRow = ({ server, onConfigClick }: { server: any, onConfigClick
       </div>
 
       <div className="hidden md:flex items-center gap-6">
-        <div className="w-24 cursor-pointer hover:scale-105 transition-transform" onClick={onConfigClick}>
+        <div className={`w-24 transition-all ${isOnline ? 'cursor-pointer hover:scale-105' : 'opacity-20 cursor-not-allowed'}`} onClick={isOnline ? onConfigClick : undefined}>
           <div className="flex justify-between text-[10px] text-zinc-500 mb-1">
             <span className="uppercase tracking-tighter">CPU</span>
             <span className={getStatusColor(stats.cpu, server.cpuThreshold)}>{Math.round(stats.cpu)}%</span>
           </div>
           <div className="h-1 w-full bg-zinc-800 rounded-full overflow-hidden">
             <div
-              className={`h-full transition-all duration-1000 ${stats.cpu > server.cpuThreshold ? 'bg-rose-500' : 'bg-indigo-500'}`}
+              className={`h-full transition-all duration-1000 ${!isOnline ? 'bg-zinc-700' : stats.cpu > server.cpuThreshold ? 'bg-rose-500' : 'bg-indigo-500'}`}
               style={{ width: `${stats.cpu}%` }}
             />
           </div>
         </div>
-        <div className="w-24 cursor-pointer hover:scale-105 transition-transform" onClick={onConfigClick}>
+        <div className={`w-24 transition-all ${isOnline ? 'cursor-pointer hover:scale-105' : 'opacity-20 cursor-not-allowed'}`} onClick={isOnline ? onConfigClick : undefined}>
           <div className="flex justify-between text-[10px] text-zinc-500 mb-1">
             <span className="uppercase tracking-tighter">MEM</span>
             <span className={getStatusColor(stats.memory, server.memThreshold)}>{Math.round(stats.memory)}%</span>
           </div>
           <div className="h-1 w-full bg-zinc-800 rounded-full overflow-hidden">
             <div
-              className={`h-full transition-all duration-1000 ${stats.memory > server.memThreshold ? 'bg-rose-500' : 'bg-indigo-500'}`}
+              className={`h-full transition-all duration-1000 ${!isOnline ? 'bg-zinc-700' : stats.memory > server.memThreshold ? 'bg-rose-500' : 'bg-indigo-500'}`}
               style={{ width: `${stats.memory}%` }}
             />
           </div>
@@ -193,11 +202,15 @@ const ServerHealthRow = ({ server, onConfigClick }: { server: any, onConfigClick
       </div>
 
       <div className="flex items-center gap-3">
-        <div className="text-xs text-zinc-300 font-mono tracking-tighter">{Math.floor((stats.uptime || 0) / 3600)}h {Math.floor(((stats.uptime || 0) % 3600) / 60)}m</div>
-        <button onClick={onConfigClick} className="p-2.5 text-zinc-500 hover:text-indigo-400 hover:bg-indigo-500/10 rounded-xl transition-all border border-transparent hover:border-indigo-500/20">
+        <div className={`text-xs font-mono tracking-tighter ${isOnline ? 'text-zinc-300' : 'text-zinc-600'}`}>{Math.floor((stats.uptime || 0) / 3600)}h {Math.floor(((stats.uptime || 0) % 3600) / 60)}m</div>
+        <button
+          onClick={isOnline ? onConfigClick : undefined}
+          disabled={!isOnline}
+          className={`p-2.5 rounded-xl transition-all border ${isOnline ? 'text-zinc-500 hover:text-indigo-400 hover:bg-indigo-500/10 border-transparent hover:border-indigo-500/20' : 'text-zinc-800 cursor-not-allowed border-transparent'}`}
+        >
           <Gauge size={18} />
         </button>
-        <Link href={`/servers/${server.id}`} className="p-2.5 text-zinc-500 hover:text-white hover:bg-zinc-800 rounded-xl transition-all">
+        <Link href={`/servers/${server.id}`} className={`p-2.5 rounded-xl transition-all ${isOnline ? 'text-zinc-500 hover:text-white hover:bg-zinc-800' : 'text-zinc-700 hover:text-zinc-500 hover:bg-zinc-900'}`}>
           <ChevronRight size={18} />
         </Link>
       </div>

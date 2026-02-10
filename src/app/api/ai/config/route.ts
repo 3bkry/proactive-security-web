@@ -22,6 +22,8 @@ export async function GET() {
             aiProvider: team.aiProvider,
             geminiApiKey: team.geminiApiKey ? "****" + team.geminiApiKey.slice(-4) : null,
             openaiApiKey: team.openaiApiKey ? "****" + team.openaiApiKey.slice(-4) : null,
+            telegramToken: team.telegramToken ? "****" + team.telegramToken.slice(-4) : null,
+            telegramChatId: team.telegramChatId ? "****" + team.telegramChatId.slice(-4) : null,
         });
     } catch (error) {
         return new NextResponse("Internal Server Error", { status: 500 });
@@ -34,7 +36,7 @@ export async function POST(req: NextRequest) {
 
     try {
         const body = await req.json();
-        const { aiProvider, geminiApiKey, openaiApiKey } = body;
+        const { aiProvider, geminiApiKey, openaiApiKey, telegramToken, telegramChatId } = body;
 
         const team = await db.team.findUnique({
             where: { id: session.user.teamId }
@@ -48,6 +50,8 @@ export async function POST(req: NextRequest) {
                 aiProvider: aiProvider || team.aiProvider,
                 geminiApiKey: geminiApiKey || team.geminiApiKey,
                 openaiApiKey: openaiApiKey || team.openaiApiKey,
+                telegramToken: telegramToken || team.telegramToken,
+                telegramChatId: telegramChatId || team.telegramChatId,
             }
         });
 

@@ -14,6 +14,8 @@ export default function SettingsPage() {
         aiProvider: 'gemini',
         geminiApiKey: '',
         openaiApiKey: '',
+        telegramToken: '',
+        telegramChatId: '',
     });
 
     useEffect(() => {
@@ -24,6 +26,8 @@ export default function SettingsPage() {
                     aiProvider: response.data.aiProvider || 'gemini',
                     geminiApiKey: response.data.geminiApiKey || '',
                     openaiApiKey: response.data.openaiApiKey || '',
+                    telegramToken: response.data.telegramToken || '',
+                    telegramChatId: response.data.telegramChatId || '',
                 });
             } catch (error) {
                 console.error("Failed to fetch settings", error);
@@ -107,6 +111,39 @@ export default function SettingsPage() {
                                 <p className="text-xs text-zinc-500 mt-2">Get your key from <a href="https://platform.openai.com/api-keys" target="_blank" className="text-indigo-400 hover:underline">OpenAI Dashboard</a></p>
                             </div>
                         )}
+                    </div>
+                </div>
+
+                {/* Telegram Notifications */}
+                <div className="bg-zinc-900 border border-zinc-800 rounded-lg p-6 shadow-xl">
+                    <h2 className="text-xl font-semibold text-white mb-4 flex items-center">
+                        <AlertCircle size={20} className="mr-2 text-amber-400" /> Telegram Notifications
+                    </h2>
+                    <p className="text-sm text-zinc-400 mb-6">Receive real-time alerts when agents go offline or detect threats.</p>
+
+                    <div className="space-y-4">
+                        <div>
+                            <label className="block text-sm font-medium text-zinc-400 mb-1">Telegram Bot Token</label>
+                            <input
+                                type="password"
+                                placeholder="Enter your Telegram Bot Token"
+                                value={config.telegramToken}
+                                onChange={(e) => setConfig({ ...config, telegramToken: e.target.value })}
+                                className="w-full bg-zinc-950 border border-zinc-800 rounded px-3 py-2 text-white focus:outline-none focus:border-indigo-500"
+                            />
+                        </div>
+
+                        <div>
+                            <label className="block text-sm font-medium text-zinc-400 mb-1">Telegram Chat ID</label>
+                            <input
+                                type="text"
+                                placeholder="Enter your Telegram Chat ID"
+                                value={config.telegramChatId}
+                                onChange={(e) => setConfig({ ...config, telegramChatId: e.target.value })}
+                                className="w-full bg-zinc-950 border border-zinc-800 rounded px-3 py-2 text-white focus:outline-none focus:border-indigo-500"
+                            />
+                            <p className="text-xs text-zinc-500 mt-2">Use <a href="https://t.me/userinfobot" target="_blank" className="text-indigo-400 hover:underline">@userinfobot</a> to find your Chat ID.</p>
+                        </div>
                     </div>
                 </div>
 

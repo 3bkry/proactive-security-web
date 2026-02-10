@@ -80,6 +80,10 @@ model Team {
   aiProvider    String   @default("gemini") // "gemini" or "openai"
   geminiApiKey  String?
   openaiApiKey  String?
+  
+  // Notification settings
+  telegramToken  String?
+  telegramChatId String?
 }
 
 model Server {
