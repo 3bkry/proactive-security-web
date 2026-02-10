@@ -34,6 +34,18 @@ export async function POST(req: NextRequest) {
             }
         });
 
+        // Increment team AI token usage if provided
+        if (body.tokensUsed && body.tokensUsed > 0) {
+            await db.team.update({
+                where: { id: team.id },
+                data: {
+                    aiTokenUsage: {
+                        increment: body.tokensUsed
+                    }
+                }
+            });
+        }
+
         // Check for pending commands
         const pendingCommands = await db.command.findMany({
             where: {
@@ -47,13 +59,59 @@ export async function POST(req: NextRequest) {
         if (pendingCommands.length > 0) {
             await db.command.updateMany({
                 where: {
-                    id: { in: pendingCommands.map(c => c.id) }
+                    id: { in: pendingCommands.map((c: any) => c.id) }
                 },
                 data: { status: "SENT" }
             });
         }
 
-        return NextResponse.json({ success: true, commands: pendingCommands });
+        // Sync watched files if provided
+        if (body.files && Array.isArray(body.files)) {
+            for (const file of body.files) {
+                await db.watchedFile.upsert({
+                    where: {
+                        serverId_path: {
+                            serverId: serverId,
+                            path: file.path
+                        }
+                    },
+                    update: {
+                        lastCheck: new Date(),
+                        lastUpdate: file.lastUpdate ? new Date(file.lastUpdate) : undefined,
+                    },
+                    create: {
+                        serverId: serverId,
+                        path: file.path,
+                        enabled: true,
+                        lastCheck: new Date(),
+                        lastUpdate: file.lastUpdate ? new Date(file.lastUpdate) : new Date(),
+                    }
+                });
+            }
+        }
+
+        const dbFiles = await db.watchedFile.findMany({
+            where: { serverId: serverId }
+        });
+
+        return NextResponse.json({
+            success: true,
+            commands: pendingCommands,
+            thresholds: {
+                cpu: server.cpuThreshold,
+                mem: server.memThreshold,
+                disk: server.diskThreshold
+            },
+            aiConfig: {
+                provider: team.aiProvider,
+                geminiKey: team.geminiApiKey,
+                openaiKey: team.openaiApiKey
+            },
+            files: dbFiles.map((f: any) => ({
+                path: f.path,
+                enabled: f.enabled
+            }))
+        });
 
     } catch (error) {
         console.error("Agent pulse error:", error);

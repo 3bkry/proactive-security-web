@@ -2,6 +2,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import axios from "axios";
 import {
     BrainCircuit, Coins, BarChart3, Zap,
     Terminal as TerminalIcon, Code, History,
@@ -28,28 +29,49 @@ export default function AI() {
         totalTokens: 0,
         totalCost: 0,
         requestCount: 0,
-        model: "Gemini 1.5 Flash"
+        model: "SATELLITE",
+        provider: "gemini"
     });
     const [history, setHistory] = useState<any[]>([]);
     const [prompt, setPrompt] = useState("");
     const [isEditingPrompt, setIsEditingPrompt] = useState(false);
     const [expandedHistory, setExpandedHistory] = useState<number | null>(null);
+    const [loading, setLoading] = useState(true);
 
-    // TODO: Implement REST API for AI stats/history
     useEffect(() => {
-        // Placeholder for initial load
-        setStats({
-            totalTokens: 1250,
-            totalCost: 0.0004,
-            requestCount: 5,
-            model: "Gemini 1.5 Pro"
-        });
+        const fetchStats = async () => {
+            try {
+                const response = await axios.get('/api/ai/stats');
+                setStats({
+                    totalTokens: response.data.totalTokens,
+                    totalCost: response.data.totalCost,
+                    requestCount: response.data.history.length,
+                    model: response.data.provider === 'openai' ? 'GPT-4o' : 'Gemini 3 Flash',
+                    provider: response.data.provider
+                });
+                setHistory(response.data.history);
+            } catch (error) {
+                console.error("Failed to fetch AI stats", error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchStats();
+        const interval = setInterval(fetchStats, 10000);
+        return () => clearInterval(interval);
     }, []);
 
     const handleSavePrompt = async () => {
-        // await axios.post('/api/ai/prompt', { prompt });
         setIsEditingPrompt(false);
     };
+
+    if (loading && history.length === 0) {
+        return (
+            <div className="flex h-[80vh] items-center justify-center">
+                <BrainCircuit className="h-12 w-12 animate-pulse text-indigo-500/30" />
+            </div>
+        );
+    }
 
     return (
         <div className="p-8 h-full flex flex-col space-y-8 overflow-y-auto">

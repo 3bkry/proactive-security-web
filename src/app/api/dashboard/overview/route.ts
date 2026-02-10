@@ -13,11 +13,12 @@ export async function GET() {
     try {
         const team = await db.team.findUnique({
             where: { id: session.user.teamId },
-            select: { aiTokenUsage: true, aiTokenLimit: true }
+            select: { apiKey: true, aiTokenUsage: true, aiTokenLimit: true }
         });
 
         const servers = await db.server.findMany({
             where: { teamId: session.user.teamId },
+            include: { watchedFiles: true },
             orderBy: { lastSeen: 'desc' },
             take: 20
         });
@@ -41,6 +42,7 @@ export async function GET() {
         return NextResponse.json({
             servers,
             alerts: formattedAlerts,
+            apiKey: team?.apiKey,
             aiStats: {
                 used: team?.aiTokenUsage || 0,
                 limit: team?.aiTokenLimit || 50000

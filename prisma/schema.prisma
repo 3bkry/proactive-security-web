@@ -75,8 +75,11 @@ model Team {
   users       User[]
   servers     Server[]
   
-  aiTokenUsage Int      @default(0)
-  aiTokenLimit Int      @default(50000)
+  aiTokenUsage  Int      @default(0)
+  aiTokenLimit  Int      @default(100000)
+  aiProvider    String   @default("gemini") // "gemini" or "openai"
+  geminiApiKey  String?
+  openaiApiKey  String?
 }
 
 model Server {
@@ -92,13 +95,34 @@ model Server {
   lastSeen    DateTime @default(now())
   stats       String?  // JSON string of CPU, Mem, Disk
   
+  // Monitoring thresholds
+  cpuThreshold  Int @default(85)
+  memThreshold  Int @default(85)
+  diskThreshold Int @default(90)
+  
   alerts      Alert[]
   commands    Command[]
+  watchedFiles WatchedFile[]
 
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
   @@unique([teamId, hostname]) // Prevent duplicate servers per team
+}
+
+model WatchedFile {
+  id        String   @id @default(uuid())
+  serverId  String
+  server    Server   @relation(fields: [serverId], references: [id])
+  path      String
+  enabled   Boolean  @default(true)
+  lastCheck DateTime @default(now())
+  lastUpdate DateTime @default(now())
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([serverId, path])
 }
 
 model Alert {

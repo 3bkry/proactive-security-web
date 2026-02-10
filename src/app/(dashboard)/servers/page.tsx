@@ -47,7 +47,21 @@ export default function Servers() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {servers.map((server) => {
-                    const stats = server.stats ? JSON.parse(server.stats) : {};
+                    const getStats = () => {
+                        try {
+                            const raw = server.stats ? JSON.parse(server.stats) : {};
+                            return {
+                                cpu: typeof raw.cpu === 'object' ? raw.cpu.load : (raw.cpu || 0),
+                                memory: typeof raw.memory === 'object' ? raw.memory.usagePercent : (raw.memory || 0),
+                                disk: typeof raw.disk === 'object' ? raw.disk.usagePercent : (raw.disk || 0),
+                                uptime: raw.uptime || 0
+                            };
+                        } catch (e) {
+                            return { cpu: 0, memory: 0, disk: 0, uptime: 0 };
+                        }
+                    };
+                    const stats = getStats();
+
                     return (
                         <div key={server.id} className={`p-6 bg-zinc-900 border ${server.status === 'ONLINE' ? 'border-green-500/20' : 'border-red-500/20'} rounded-lg`}>
                             <div className="flex justify-between items-start mb-6">
@@ -69,15 +83,15 @@ export default function Servers() {
                             <div className="space-y-4">
                                 <div className="flex justify-between items-center py-2 border-b border-zinc-800">
                                     <div className="flex items-center text-zinc-400 text-sm"><Cpu size={16} className="mr-2" /> CPU Load</div>
-                                    <span className="text-white font-mono">{stats.cpu ? `${Math.round(stats.cpu.load)}%` : 'N/A'}</span>
+                                    <span className="text-white font-mono">{Math.round(stats.cpu)}%</span>
                                 </div>
                                 <div className="flex justify-between items-center py-2 border-b border-zinc-800">
                                     <div className="flex items-center text-zinc-400 text-sm"><HardDrive size={16} className="mr-2" /> Memory</div>
-                                    <span className="text-white font-mono">{stats.memory ? `${Math.round(stats.memory.used / 1024 / 1024)} MB` : 'N/A'}</span>
+                                    <span className="text-white font-mono">{Math.round(stats.memory)}%</span>
                                 </div>
                                 <div className="flex justify-between items-center py-2 border-b border-zinc-800">
-                                    <div className="flex items-center text-zinc-400 text-sm"><Clock size={16} className="mr-2" /> Last Seen</div>
-                                    <span className="text-white font-mono text-xs">{new Date(server.lastSeen).toLocaleTimeString()}</span>
+                                    <div className="flex items-center text-zinc-400 text-sm"><Clock size={16} className="mr-2" /> Uptime</div>
+                                    <span className="text-white font-mono text-xs">{`${Math.floor(stats.uptime / 3600)}h ${Math.floor((stats.uptime % 3600) / 60)}m`}</span>
                                 </div>
                             </div>
 
