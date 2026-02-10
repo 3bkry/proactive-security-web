@@ -10,6 +10,7 @@ import bcrypt from "bcryptjs";
 export const authOptions: NextAuthOptions = {
     adapter: PrismaAdapter(db),
     session: { strategy: "jwt" },
+    secret: process.env.NEXTAUTH_SECRET || "fallback-secret-for-dev",
     pages: {
         signIn: "/login",
     },
