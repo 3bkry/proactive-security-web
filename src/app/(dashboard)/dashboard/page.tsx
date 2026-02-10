@@ -26,6 +26,7 @@ export default function Overview() {
   const { data: session } = useSession();
   const [servers, setServers] = useState<any[]>([]);
   const [alerts, setAlerts] = useState<any[]>([]);
+  const [aiStats, setAiStats] = useState({ used: 0, limit: 50000 });
   const [loading, setLoading] = useState(true);
   const [teamKey, setTeamKey] = useState<string | null>(null);
 
@@ -41,6 +42,7 @@ export default function Overview() {
       const res = await axios.get('/api/dashboard/overview');
       setServers(res.data.servers);
       setAlerts(res.data.alerts);
+      if (res.data.aiStats) setAiStats(res.data.aiStats);
     } catch (e) {
       // console.error("Failed to fetch dashboard data", e);
     } finally {
@@ -111,8 +113,8 @@ export default function Overview() {
         />
         <StatCard
           title="AI Token Usage"
-          value="1,240"
-          sub="Daily Limit: 50k"
+          value={aiStats.used.toLocaleString()}
+          sub={`Limit: ${(aiStats.limit / 1000).toFixed(0)}k`}
           icon={BrainCircuit}
           color="purple"
         />

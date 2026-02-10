@@ -74,6 +74,9 @@ model Team {
   
   users       User[]
   servers     Server[]
+  
+  aiTokenUsage Int      @default(0)
+  aiTokenLimit Int      @default(50000)
 }
 
 model Server {

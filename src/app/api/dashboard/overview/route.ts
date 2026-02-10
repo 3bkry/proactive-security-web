@@ -11,6 +11,11 @@ export async function GET() {
     }
 
     try {
+        const team = await db.team.findUnique({
+            where: { id: session.user.teamId },
+            select: { aiTokenUsage: true, aiTokenLimit: true }
+        });
+
         const servers = await db.server.findMany({
             where: { teamId: session.user.teamId },
             orderBy: { lastSeen: 'desc' },
@@ -35,7 +40,11 @@ export async function GET() {
 
         return NextResponse.json({
             servers,
-            alerts: formattedAlerts
+            alerts: formattedAlerts,
+            aiStats: {
+                used: team?.aiTokenUsage || 0,
+                limit: team?.aiTokenLimit || 50000
+            }
         });
     } catch (error) {
         console.error("Dashboard overview error:", error);
