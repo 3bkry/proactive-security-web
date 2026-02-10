@@ -3,7 +3,8 @@
 
 import { useState, useEffect } from "react";
 import axios from "axios";
-import { Server, Cpu, HardDrive, Clock, CheckCircle, XCircle } from 'lucide-react';
+import { Server, Cpu, HardDrive, Clock, CheckCircle, XCircle, Database } from 'lucide-react';
+import Link from "next/link";
 
 export default function Servers() {
     const [servers, setServers] = useState<any[]>([]);
@@ -90,13 +91,19 @@ export default function Servers() {
                                     <span className="text-white font-mono">{Math.round(stats.memory)}%</span>
                                 </div>
                                 <div className="flex justify-between items-center py-2 border-b border-zinc-800">
+                                    <div className="flex items-center text-zinc-400 text-sm"><Database size={16} className="mr-2" /> Storage</div>
+                                    <span className="text-white font-mono">{Math.round(stats.disk)}%</span>
+                                </div>
+                                <div className="flex justify-between items-center py-2 border-b border-zinc-800">
                                     <div className="flex items-center text-zinc-400 text-sm"><Clock size={16} className="mr-2" /> Uptime</div>
                                     <span className="text-white font-mono text-xs">{`${Math.floor(stats.uptime / 3600)}h ${Math.floor((stats.uptime % 3600) / 60)}m`}</span>
                                 </div>
                             </div>
 
                             <div className="mt-6 flex space-x-2">
-                                <button className="flex-1 py-2 bg-zinc-800 hover:bg-zinc-700 rounded text-sm font-medium transition-colors">Details</button>
+                                <Link href={`/servers/${server.id}`} className="flex-1 py-2 bg-zinc-800 hover:bg-zinc-700 rounded text-sm font-medium transition-colors text-center">
+                                    Details
+                                </Link>
                                 <button className="flex-1 py-2 bg-zinc-800 hover:bg-zinc-700 rounded text-sm font-medium transition-colors text-red-400 hover:text-red-300">Reboot</button>
                             </div>
                         </div>

@@ -38,6 +38,7 @@ export async function GET() {
                 timestamp: h.createdAt,
                 type: h.type,
                 message: h.message,
+                serverName: h.server.name,
                 details: h.details ? JSON.parse(h.details) : null
             }))
         });

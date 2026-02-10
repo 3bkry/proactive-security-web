@@ -10,7 +10,8 @@ import {
     Activity,
     Settings,
     Terminal,
-    FileText
+    FileText,
+    ShieldCheck
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -43,6 +44,7 @@ export const Sidebar = () => {
                 <NavItem href="/logs" icon={FileText} label="Logs" active={pathname === '/logs'} />
                 <NavItem href="/ai" icon={BrainCircuit} label="AI Insights" active={pathname === '/ai'} />
                 <NavItem href="/incidents" icon={Activity} label="Incidents" active={pathname === '/incidents'} />
+                <NavItem href="/defense" icon={ShieldCheck} label="Active Defense" active={pathname === '/defense'} />
 
                 <div className="text-xs font-semibold text-zinc-500 uppercase tracking-wider mt-8 mb-4 px-4">Tools</div>
                 <NavItem href="/terminal" icon={Terminal} label="Live Terminal" active={pathname === '/terminal'} />

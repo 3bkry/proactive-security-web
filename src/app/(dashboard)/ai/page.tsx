@@ -33,6 +33,7 @@ export default function AI() {
         provider: "gemini"
     });
     const [history, setHistory] = useState<any[]>([]);
+    const [activeAssets, setActiveAssets] = useState<any[]>([]);
     const [prompt, setPrompt] = useState("");
     const [isEditingPrompt, setIsEditingPrompt] = useState(false);
     const [expandedHistory, setExpandedHistory] = useState<number | null>(null);
@@ -52,12 +53,34 @@ export default function AI() {
                 setHistory(response.data.history);
             } catch (error) {
                 console.error("Failed to fetch AI stats", error);
+            }
+        };
+        const fetchAssets = async () => {
+            try {
+                const response = await axios.get('/api/dashboard/overview');
+                const assets = response.data.servers.flatMap((s: any) =>
+                    (s.watchedFiles || []).map((f: any) => ({
+                        ...f,
+                        serverName: s.name,
+                        hostname: s.hostname
+                    }))
+                ).filter((a: any) => a.enabled).sort((a: any, b: any) =>
+                    new Date(b.lastUpdate).getTime() - new Date(a.lastUpdate).getTime()
+                );
+                setActiveAssets(assets.slice(0, 5));
+            } catch (error) {
+                console.error("Failed to fetch assets", error);
             } finally {
                 setLoading(false);
             }
         };
+
         fetchStats();
-        const interval = setInterval(fetchStats, 10000);
+        fetchAssets();
+        const interval = setInterval(() => {
+            fetchStats();
+            fetchAssets();
+        }, 10000);
         return () => clearInterval(interval);
     }, []);
 
@@ -150,6 +173,37 @@ export default function AI() {
                                     </button>
                                 )}
                             </div>
+
+                            {/* Live Asset Activity */}
+                            <div className="bg-zinc-950/30 border border-zinc-800/50 rounded-xl flex flex-col overflow-hidden">
+                                <div className="p-3 border-b border-zinc-800/50 bg-indigo-500/5 flex justify-between items-center">
+                                    <h3 className="font-bold text-white flex items-center text-[10px] uppercase tracking-widest">
+                                        <Zap size={12} className="mr-2 text-yellow-400 fill-yellow-400" /> Live Scanning
+                                    </h3>
+                                    <span className="text-[9px] text-zinc-600 font-mono">Real-time</span>
+                                </div>
+                                <div className="p-2 space-y-2">
+                                    {activeAssets.length === 0 ? (
+                                        <p className="text-center text-[10px] text-zinc-500 py-4 italic">No active scan streams.</p>
+                                    ) : (
+                                        activeAssets.slice(0, 3).map((asset, i) => (
+                                            <div key={i} className="flex items-center justify-between p-2 bg-zinc-950/80 rounded border border-zinc-800/40">
+                                                <div className="flex items-center gap-2 overflow-hidden">
+                                                    <div className="w-1 h-1 rounded-full bg-green-500 animate-pulse shrink-0" />
+                                                    <div className="overflow-hidden">
+                                                        <p className="text-[9px] font-mono text-zinc-300 truncate">{asset.path}</p>
+                                                        <p className="text-[8px] text-zinc-600 uppercase font-bold tracking-tighter truncate">{asset.serverName}</p>
+                                                    </div>
+                                                </div>
+                                                <div className="text-right shrink-0">
+                                                    <p className="text-[9px] text-zinc-400 font-mono">{new Date(asset.lastUpdate).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
+                                                </div>
+                                            </div>
+                                        ))
+                                    )}
+                                </div>
+                            </div>
+
                             <div className="bg-indigo-500/5 border border-indigo-500/20 p-4 rounded-xl">
                                 <div className="flex items-start space-x-3 text-xs text-indigo-300">
                                     <Info size={16} className="shrink-0" />
@@ -189,11 +243,14 @@ export default function AI() {
                                                     <div className={`w-2 h-2 rounded-full ${item.response?.risk === 'HIGH' ? 'bg-red-500 animate-pulse' :
                                                         item.response?.risk === 'MEDIUM' ? 'bg-amber-500' : 'bg-green-500'
                                                         }`} />
+                                                    <div className="font-mono text-[10px] text-indigo-400 font-bold uppercase tracking-tighter shrink-0 w-24 truncate">
+                                                        {item.serverName}
+                                                    </div>
                                                     <div className="font-mono text-[10px] text-zinc-500 shrink-0">
                                                         {new Date(item.timestamp).toLocaleTimeString()}
                                                     </div>
-                                                    <div className="text-xs font-mono text-zinc-300 truncate max-w-lg">
-                                                        {item.log}
+                                                    <div className="text-xs font-mono text-zinc-300 truncate max-w-sm">
+                                                        {item.message || item.log}
                                                     </div>
                                                 </div>
                                                 <div className="flex items-center space-x-4">
