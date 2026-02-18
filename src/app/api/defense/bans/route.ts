@@ -52,25 +52,50 @@ export async function POST(req: Request) {
     }
 
     try {
-        const { alertId, serverId, ip } = await req.json();
+        const body = await req.json();
 
-        // Create unban command for the agent
-        await db.command.create({
-            data: {
-                serverId,
-                type: "UNBAN_IP",
-                payload: JSON.stringify({ ip }),
-                status: "PENDING"
+        // Support both single and bulk unban
+        // Single: { alertId, serverId, ip }
+        // Bulk:   { items: [{ alertId, serverId, ip }, ...] }
+        const items: Array<{ alertId: string; serverId: string; ip: string }> =
+            body.items ? body.items : [{ alertId: body.alertId, serverId: body.serverId, ip: body.ip }];
+
+        const results: Array<{ ip: string; success: boolean }> = [];
+
+        for (let i = 0; i < items.length; i++) {
+            const { alertId, serverId, ip } = items[i];
+
+            try {
+                // Create unban command for the agent
+                await db.command.create({
+                    data: {
+                        serverId,
+                        type: "UNBAN_IP",
+                        payload: JSON.stringify({ ip }),
+                        status: "PENDING"
+                    }
+                });
+
+                // Mark alert as resolved
+                if (alertId) {
+                    await db.alert.update({
+                        where: { id: alertId },
+                        data: { isResolved: true }
+                    });
+                }
+
+                results.push({ ip, success: true });
+            } catch (e) {
+                results.push({ ip, success: false });
             }
-        });
+        }
 
-        // Mark alert as resolved
-        await db.alert.update({
-            where: { id: alertId },
-            data: { isResolved: true }
+        return NextResponse.json({
+            success: true,
+            unbanned: results.filter(r => r.success).length,
+            failed: results.filter(r => !r.success).length,
+            results
         });
-
-        return NextResponse.json({ success: true });
 
     } catch (error) {
         console.error("Unban error:", error);
